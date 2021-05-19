@@ -34,8 +34,8 @@ end
 %save('e107061123.mat','errorMatrix');
 
 % if input 'e107061123.mat' then have to use the two lines below
-errorMatrix = load('e107061123.mat','-mat');
-errorMatrix = errorMatrix.errorMatrix;
+% errorMatrix = load('e107061123.mat','-mat');
+% errorMatrix = errorMatrix.errorMatrix;
 
 z = zeros(1,32);
 find = [];
