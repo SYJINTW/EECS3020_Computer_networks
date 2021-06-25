@@ -16,7 +16,7 @@ typedef struct t_data
 {
 	char student_id[256];
 	char email[256];
-}data;
+} data;
 
 /* Write to the client */
 void send_message(int streamfd, char* response, char* message)
@@ -46,8 +46,7 @@ int main ()
 	int size = 0;
 	data table[100];
 	fp = fopen("query.txt", "r");
-	for(size = 0; fscanf(fp, "%s%s", table[size].student_id, table[size].email) != EOF; size++)
-	{}
+	for(size = 0; fscanf(fp, "%s%s", table[size].student_id, table[size].email) != EOF; size++){}
 
 	/* initialize socket structure */
 	bzero (&server_addr, sizeof(server_addr));
@@ -59,13 +58,15 @@ int main ()
 
 	/* First call to socket() function */	
 	sockfd = socket (PF_INET, SOCK_STREAM, 0);
-	if (sockfd < 0) {
+	if (sockfd < 0) 
+	{
 		perror("ERROR opening socket");
 		exit(1);
    	}
 
 	/* Now bind the host address using bind() call.*/
-	if (bind (sockfd, (struct sockaddr *) &server_addr, sizeof(struct sockaddr_in))< 0) {
+	if (bind (sockfd, (struct sockaddr *) &server_addr, sizeof(struct sockaddr_in))< 0) 
+	{
 		perror("ERROR on binding");
 		exit(1);
    	}
@@ -94,7 +95,8 @@ int main ()
 			/* Read from the client */
 			bzero(str_buf,256);
 			n = read(streamfd, str_buf, 255);
-			if (n < 0) {
+			if (n < 0) 
+			{
 				perror("ERROR reading from socket");
 				exit(1);
 			}
@@ -107,7 +109,8 @@ int main ()
 				/* Read from the client */
 				bzero(str_buf,256);
 				n = read(streamfd, str_buf, 255);
-				if (n < 0) {
+				if (n < 0) 
+				{
 					perror("ERROR reading from socket");
 					exit(1);
 				}
@@ -158,7 +161,8 @@ int main ()
 				/* Read from the client */
 				bzero(str_buf,256);
 				n = read(streamfd, str_buf, 255);
-				if (n < 0) {
+				if (n < 0) 
+				{
 					perror("ERROR reading from socket");
 					exit(1);
 				}
@@ -200,6 +204,5 @@ int main ()
 			}
 		}
    	}
-      
-   return 0;
+   	return 0;
 }

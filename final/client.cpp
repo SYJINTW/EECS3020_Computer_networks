@@ -48,7 +48,8 @@ int main ()
 	
 	/* create a socket */
 	sockfd = socket (PF_INET, SOCK_STREAM, 0);
-	if(sockfd < 0){
+	if(sockfd < 0)
+	{
         perror("ERROR opening socket");
         exit(1);
     }
@@ -78,7 +79,8 @@ int main ()
 		bzero(str_buf,256);
 		fgets(str_buf,255,stdin);
 		n = write(sockfd, str_buf, strlen(str_buf));
-		if (n < 0) {
+		if (n < 0) 
+		{
 			perror("ERROR writing to socket");
 			exit(1);
 		}
@@ -100,7 +102,8 @@ int main ()
 			bzero(str_buf,256);
 			s_gets(str_buf, 255);
 			n = write(sockfd, str_buf, strlen(str_buf));
-			if (n < 0) {
+			if (n < 0) 
+			{
 				perror("ERROR writing to socket");
 				exit(1);
 			}
@@ -148,7 +151,8 @@ int main ()
 			bzero(str_buf,256);
 			s_gets(str_buf, 255);
 			n = write(sockfd, str_buf, strlen(str_buf));
-			if (n < 0) {
+			if (n < 0) 
+			{
 				perror("ERROR writing to socket");
 				exit(1);
 			}
@@ -205,7 +209,6 @@ int main ()
 			printf("%s\n", str_buf);
 		}
 	}
-	
 	close(sockfd);	
 	return 0;
 }
