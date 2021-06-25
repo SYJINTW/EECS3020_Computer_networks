@@ -19,26 +19,25 @@ typedef struct t_data
 }data;
 
 /* Write to the client */
-/*
-void send_message()
+void send_message(int streamfd, char* response, char* message)
 {
-	bzero(str_buf, 256);
-	strcpy(str_buf, "What's your requirement? 1.DNS 2.QUERY 3.QUIT : ");
-	n = write(streamfd, str_buf, strlen(str_buf));
+	int n;
+	bzero(response, 256);
+	strcpy(response, message);
+	n = write(streamfd, response, 255);
 	if (n < 0) 
 	{
 		perror("ERROR writing to socket");
 		exit(1);
 	}
 }
-*/
 
 int main ()
 {	
 	struct sockaddr_in server_addr, client_addr;	
 	int sockfd, streamfd, port;
 	socklen_t addr_size;
-	char str_buf[256], response[256];
+	char str_buf[256], response[256], message[256];
 	int n;
 	struct hostent *host;
 
@@ -48,9 +47,7 @@ int main ()
 	data table[100];
 	fp = fopen("query.txt", "r");
 	for(size = 0; fscanf(fp, "%s%s", table[size].student_id, table[size].email) != EOF; size++)
-	{
-		//printf("%s %s\n", table[size].student_id, table[size].email);
-	}
+	{}
 
 	/* initialize socket structure */
 	bzero (&server_addr, sizeof(server_addr));
@@ -92,14 +89,7 @@ int main ()
 		while(1)
 		{
 			/* Write to the client */
-			bzero(str_buf, 256);
-			strcpy(str_buf, "What's your requirement? 1.DNS 2.QUERY 3.QUIT : ");
-            n = write(streamfd, str_buf, strlen(str_buf));
-			if (n < 0) 
-			{
-				perror("ERROR writing to socket");
-				exit(1);
-			}
+			send_message(streamfd, response, (char *)"What's your requirement? 1.DNS 2.QUERY 3.QUIT 4.CLOSE SERVER : ");
 			
 			/* Read from the client */
 			bzero(str_buf,256);
@@ -112,14 +102,7 @@ int main ()
 			if(str_buf[0] == '1')
 			{
 				/* Write to the client */
-				bzero(str_buf, 256);
-				strcpy(str_buf, "Input URL address : ");
-				n = write(streamfd, str_buf, strlen(str_buf));
-				if (n < 0) 
-				{
-					perror("ERROR writing to socket");
-					exit(1);
-				}
+				send_message(streamfd, response, (char *)"Input URL address : ");
 
 				/* Read from the client */
 				bzero(str_buf,256);
@@ -137,26 +120,13 @@ int main ()
 				{
 					/* Write to the client */
 					/* 1 */
-					bzero(response, 256);
-					strcpy(response, "1");
-					n = write(streamfd, response, 255);
-					if (n < 0) 
-					{
-						perror("ERROR writing to socket");
-						exit(1);
-					}
+					strcpy(message, "1");
+					send_message(streamfd, response, message);
 					
 					/* Write to the client */
 					/* "No such URL.\n" */
-					bzero(response, 256);
-					strcpy(response, "No such URL.\n");
-					n = write(streamfd, response, 255);
-					if (n < 0) 
-					{
-						perror("ERROR writing to socket");
-						exit(1);
-					}
-					printf("Found result: %s\n", response);
+					send_message(streamfd, response, (char *)"No such URL.");
+					printf("Found result: No such URL.\n");
 				}
 				else
 				{
@@ -164,34 +134,18 @@ int main ()
 					int addr_num = 0;
 					struct in_addr **addr_list;
 					addr_list = (struct in_addr **)host->h_addr_list;
-					for(addr_num = 0; addr_list[addr_num] != NULL; addr_num++)
-					{
-						strcpy(response, inet_ntoa(*addr_list[addr_num]));
-					}
+					for(addr_num = 0; addr_list[addr_num] != NULL; addr_num++){}
 
 					/* Write to the client */
-					bzero(response, 256);
-					sprintf(response, "%d", addr_num); 
-					//strcpy(response, "No such URL.\n");
-					n = write(streamfd, response, 255);
-					if (n < 0) 
-					{
-						perror("ERROR writing to socket");
-						exit(1);
-					}
+					/* addr_num times */
+					sprintf(message, "%d", addr_num);
+					send_message(streamfd, response, message);
 
 					/* Write addr_num times to the client */
 					for(addr_num = 0; addr_list[addr_num] != NULL; addr_num++)
 					{
-						bzero(response, 256);
-						strcpy(response, inet_ntoa(*addr_list[addr_num]));
-						n = write(streamfd, response, 255);
-						if (n < 0) 
-						{
-							perror("ERROR writing to socket");
-							exit(1);
-						}
-						printf("Found result: %s\n", response);
+						send_message(streamfd, response, (char *)(inet_ntoa(*addr_list[addr_num])));
+						printf("Found result: %s\n", (char *)(inet_ntoa(*addr_list[addr_num])));
 					}
 				}
 
@@ -199,14 +153,7 @@ int main ()
 			else if(str_buf[0] == '2')
 			{
 				/* Write to the client */
-				bzero(str_buf, 256);
-				strcpy(str_buf, "Input student ID : ");
-				n = write(streamfd, str_buf, strlen(str_buf));
-				if (n < 0) 
-				{
-					perror("ERROR writing to socket");
-					exit(1);
-				}
+				send_message(streamfd, response, (char *)"Input student ID : ");
 
 				/* Read from the client */
 				bzero(str_buf,256);
@@ -217,68 +164,39 @@ int main ()
 				}
 				printf("Get student ID from client: %s\n", str_buf);
 
-				int find = 0;
+				/* Check if the table have student ID */
+				strcpy(message, "No such student ID.");
 				for(int i = 0; i < size; i++)
 				{
 					if(strcmp(str_buf, table[i].student_id) == 0)
 					{
-						bzero(response, 256);
-						strcpy(response, table[i].email);
-						find = 1;
+						bzero(message, 256);
+						strcpy(message, table[i].email);
 					}
 				}
-				if(find)
-				{
-					/* Write to the client */
-					//bzero(response, 256);
-					//strcpy(response, "No such student ID.\n");
-					n = write(streamfd, response, 255);
-					if (n < 0) 
-					{
-						perror("ERROR writing to socket");
-						exit(1);
-					}
-				}
-				else
-				{
-					/* Write to the client */
-					bzero(response, 256);
-					strcpy(response, "No such student ID.");
-					n = write(streamfd, response, 255);
-					if (n < 0) 
-					{
-						perror("ERROR writing to socket");
-						exit(1);
-					}
-				}
-				printf("Found result: %s\n", response);
+
+				/* Write to the client */
+				send_message(streamfd, response, message);
+				printf("Found result: %s\n", message);
 			}
 			else if(str_buf[0] == '3')
 			{
 				/* Write to the client */
-				bzero(str_buf, 256);
-				strcpy(str_buf, "Bye\n");
-				n = write(streamfd, str_buf, strlen(str_buf));
-				if (n < 0) 
-				{
-					perror("ERROR writing to socket");
-					exit(1);
-				}
+				send_message(streamfd, response, (char *)"Bye client.");
+				status = 1;
+				break;
+			}
+			else if(str_buf[0] == '4')
+			{
+				/* Write to the client */
+				send_message(streamfd, response, (char *)"Bye.");
 				status = 0;
 				break;
 			}
 			else
 			{
 				/* Write to the client */
-				/* Write to the client */
-				bzero(response, 256);
-				strcpy(response, "Try again.");
-				n = write(streamfd, response, 255);
-				if (n < 0) 
-				{
-					perror("ERROR writing to socket");
-					exit(1);
-				}
+				send_message(streamfd, response, (char *)"Try again.");
 			}
 		}
    	}

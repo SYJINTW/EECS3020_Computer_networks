@@ -37,8 +37,8 @@ void s_gets(char* dest, int n)
 int main ()
 {	
 	struct sockaddr_in server_addr;	
-	int sockfd, status;	
-	char str_buf[256], response[256];
+	int sockfd;	
+	char str_buf[256];
 	int n;
 
 	/* setup the server address	*/
@@ -64,7 +64,7 @@ int main ()
 	while(1)
 	{
 		/* Read from server */
-		/* "What's your requirement? 1.DNS 2.QUERY 3.QUIT : " */
+		/* "What's your requirement? 1.DNS 2.QUERY 3.QUIT 4.CLOSE SERVER : " */
         bzero(str_buf,256);
         n = read(sockfd, str_buf, 255);
 		if (n < 0) 
@@ -165,6 +165,20 @@ int main ()
 			printf("%s\n", str_buf);
 		}
 		else if(str_buf[0] == '3')
+		{
+			/* Read from server */
+			/* "Bye client" */
+			bzero(str_buf,256);
+			n = read(sockfd, str_buf, 255);
+			if (n < 0) 
+			{
+				perror("ERROR reading from socket");
+				exit(1);
+			}
+			printf("%s", str_buf);
+			break;
+		}
+		else if(str_buf[0] == '4')
 		{
 			/* Read from server */
 			/* "Bye" */
